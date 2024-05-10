@@ -4,6 +4,9 @@ class Node():
         self.parent = parent
         self.action = action
 
+    def __str__(self) -> str:
+        return f"NODE: person_id: {self.state}, parent_id: {self.parent}, movie_id: {self.action}\n"
+
 
 class StackFrontier():
     def __init__(self):

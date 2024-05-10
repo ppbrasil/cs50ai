@@ -84,6 +84,21 @@ def main():
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
 
 
+def isGoal(node:Node, star_id):
+    return node.state == star_id
+
+
+def draw_path(node:Node):
+    path = []
+
+    while node.parent is not None:
+        path.append((node.action, node.state))
+        node = node.parent
+
+    path.reverse()
+
+    return path
+
 def shortest_path(source, target):
     """
     Returns the shortest list of (movie_id, person_id) pairs
@@ -91,13 +106,15 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    degrees = 0
-    explored_movies = set()
-    explored_stars = set()
+    explored_persons = set()
     shortest_path = []
     frontier = QueueFrontier()
 
-    start_node = Node(star_id=source)
+    if source == target:
+        return []
+
+    start_node = Node(state=source, parent=None, action=None)
+
     frontier.add(start_node)
 
     while True:
@@ -105,19 +122,18 @@ def shortest_path(source, target):
             return None
         
         node = frontier.remove()
-
-        if isGoal(node):
+        
+        if isGoal(node, target):
             return draw_path(node)
 
-        explored_stars.add(node.state)
+        explored_persons.add(node.state)
 
-        neighbors = neighbors_for_person(node.star_id)
+        neighbors = neighbors_for_person(node.state)
 
-        for new_star_id, new_movie_id in neighbors:
-
-            if not frontier.contains_state(new_star_id) and new_star_id not in explored_stars:
+        for new_movie_id, new_person_id in neighbors:
+            if not frontier.contains_state(new_person_id) and new_person_id not in explored_persons:
                 new_node = Node(
-                            state = new_star_id, 
+                            state = new_person_id, 
                             parent = node, 
                             action= new_movie_id
                             )
@@ -157,33 +173,15 @@ def neighbors_for_person(person_id):
     Returns (movie_id, person_id) pairs for people
     who starred with a given person.
     """
-    movie_ids = people[person_id]["movies"]
     neighbors = set()
-    for movie_id in movie_ids:
-        for person_id in movies[movie_id]["stars"]:
-            neighbors.add((movie_id, person_id))
-    return neighbors
-
+    try:
+        movie_ids = people[person_id]["movies"]
+        for movie_id in movie_ids:
+            for person_id in movies[movie_id]["stars"]:
+                neighbors.add((movie_id, person_id))
+        return neighbors
+    except:
+        return neighbors
 
 if __name__ == "__main__":
     main()
-
-
-
-def isGoal(node:Node, star_id):
-    return node.star_id == star_id
-
-
-def draw_path(node:Node):
-    stars=[]
-    movies=[]
-
-    while node.parent is not None:
-        movies.append(node.action)
-        stars.append(node.state)
-        node = node.parent
-    
-    movies.reverse()
-    stars.reverse()
-    
-    return (movies, stars)
