@@ -45,7 +45,15 @@ def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    raise NotImplementedError
+    empty_positions = []
+    # Iterate through each row with its index
+    for i, row in enumerate(board):
+        # Iterate through each cell in the row with its index
+        for j, value in enumerate(row):
+            if value == "EMPTY":
+                # If the cell is "EMPTY", append the (i, j) tuple to the result list
+                empty_positions.append((i, j))
+    return empty_positions
 
 
 def result(board, action):
